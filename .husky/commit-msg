@@ -1,0 +1,2 @@
+echo "Running commit-msg hooks..."
+pnpm exec commitlint --edit $1
