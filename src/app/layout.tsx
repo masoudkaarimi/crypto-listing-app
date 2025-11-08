@@ -32,7 +32,7 @@ export default function RootLayout({ children }: Readonly<RootLayoutProps>) {
           fontMono.variable
         )}
       >
-        <main className="container mx-auto py-8 px-4">{children}</main>
+        <main className="container max-w-6xl mx-auto p-4">{children}</main>
       </body>
     </html>
   );
