@@ -1,36 +1,141 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Cryptocurrency Listings App
 
-## Getting Started
+این پروژه یک اپلیکیشن وب برای نمایش لیست رمزارزها است که با تمرکز بر بارگذاری بهینه، کش داده‌ها در سمت کلاینت (IndexedDB) و یک رابط کاربری پیشرفته و مدرن ساخته شده است .
 
-First, run the development server:
+این پروژه به عنوان بخشی از یک سناریوی تستی توسعه یافته و تمام الزامات اصلی و نکات امتیازی، از جمله مدیریت وضعیت با Zustand ، استفاده از IndexedDB و پیاده‌سازی Skeleton Loading را
+پیاده‌سازی کرده است.
+
+---
+
+## 🚀 Live Demo (مشاهد دمو)
+
+**[شما می‌توانید نسخه زنده‌ی این پروژه را در Vercel مشاهده کنید](https://crypto-listing-app-nu.vercel.app/)**
+
+---
+
+## 📸 Screenshots (تصاویر پروژه)
+
+|          نمای دسکتاپ (جدول پیشرفته)           |        نمای موبایل (کاملاً ریسپانسیو)         |
+| :-------------------------------------------: | :-------------------------------------------: |
+| ![Screenshot 1](screenshots/screenshot-1.png) | ![Screenshot 2](screenshots/screenshot-2.png) |
+
+---
+
+## ✨ Features (ویژگی‌ها)
+
+- **جدول داده پیشرفته:** پیاده‌سازی کامل جدول با `TanStack Table v8` شامل:
+  - مرتب‌سازی (Sorting) بر اساس تمام ستون‌ها
+  - فیلتر کلاینت-ساید (Filtering) بر اساس نام
+  - صفحه‌بندی (Pagination) کامل
+  - قابلیت فعال/غیرفعال کردن ستون‌ها (Column Toggling)
+- **کش سمت کلاینت:** داده‌ها در `IndexedDB` ذخیره می‌شوند . در بارگذاری اولیه، برنامه داده‌ها را مستقیماً از دیتابیس محلی می‌خواند که منجر به بارگذاری تقریباً فوری می‌شود .
+- **به‌روزرسانی دوره‌ای:** داده‌های موجود در IndexedDB به صورت دوره‌ای (هر ۵ دقیقه، قابل تنظیم) در پس‌زمینه با API همگام‌سازی می‌شوند .
+- **مدیریت وضعیت با Zustand:** مدیریت وضعیت گلوبال برنامه (لیست ارزها، وضعیت بارگذاری و خطاها) با `Zustand` انجام شده است .
+- **رابط کاربری چسبان (Sticky UI):** هدر جدول و دو ستون اول (`Rank` و `Name`) هنگام اسکرول افقی و عمودی ثابت می‌مانند.
+- **بارگذاری بهینه:**
+  - استفاده از `Skeleton Loading` (افکت Shimmer/Pulse) برای بهبود UX هنگام بارگذاری اولیه .
+  - استفاده از `Lazy Loading` خودکار `next/image` برای لوگوی ارزها .
+- **طراحی ریسپانسیو:** رابط کاربری کاملاً واکنش‌گرا برای دسکتاپ و موبایل .
+
+---
+
+## 🛠 Tech Stack (تکنولوژی‌های استفاده شده)
+
+- **Next.js (App Router):** به عنوان فریمورک اصلی React و برای ایجاد API Route (جهت حل مشکل CORS).
+- **TypeScript:** برای نوع‌بندی (Type-Safety) قوی در سراسر پروژه.
+- **Tailwind CSS & shadcn/ui:** برای پیاده‌سازی سریع یک رابط کاربری مدرن، خوانا و ریسپانسیو.
+- **TanStack Table v8:** برای ساخت جدول داده‌ی قدرتمند و "headless" (بدون استایل پیش‌فرض).
+- **Zustand:** برای مدیریت وضعیت ساده و بهینه.
+- **IndexedDB (via `idb`):** برای پیاده‌سازی کش سمت کلاینت.
+- **Axios:** برای برقراری ارتباط با API.
+- **Jest & Testing Library:** برای نوشتن تست‌های واحد (Unit Tests) .
+
+---
+
+## 🏛 Architecture Notes (توضیح معماری)
+
+این پروژه بر اساس یک ساختار پوشه‌بندی حرفه‌ای و جداسازی منطقی کامپوننت‌ها ساخته شده است :
+
+- **`src/components/ui/`**: کامپوننت‌های پایه و اتمی (مانند Button, Input) که توسط `shadcn/ui` مدیریت می‌شوند.
+- **`src/components/common/`**: کامپوننت‌های قابل استفاده مجدد در سراسر برنامه، مانند `DataTable` عمومی، `DataTablePagination` و `DataTableViewOptions`.
+- **`src/components/features/`**: کامپوننت‌هایی که مخصوص یک بخش خاص از برنامه هستند.
+  - **`features/crypto/`**: تمام منطق مربوط به نمایش لیست ارزها (مانند `crypto-list-view.tsx`، `crypto-columns.tsx` و `crypto-table-skeleton.tsx`) در این ماژول قرار دارد.
+- **`src/services/`**: ماژول‌های مربوط به ارتباط با سرویس‌های خارجی (مانند `api.ts` برای فراخوانی API و `db.ts` برای مدیریت IndexedDB).
+- **`src/store/`**: منطق مدیریت وضعیت برنامه با Zustand (`crypto.ts`).
+
+### تصمیمات کلیدی معماری:
+
+1. **IndexedDB به عنوان منبع اصلی (Source of Truth):**
+   بر اساس الزام سناریو ، کامپوننت `CryptoListView` مستقیماً با `Zustand` صحبت می‌کند. `Zustand` در تابع `initialize` خود، ابتدا داده‌ها را از `IndexedDB` می‌خواند و نمایش می‌دهد،
+   سپس (در صورت کهنه بودن کش) اقدام به فراخوانی API و به‌روزرسانی `IndexedDB` می‌کند. این الگو تضمین می‌کند که برنامه همیشه (حتی در حالت آفلاین نسبی) قابل استفاده و سریع است.
+
+2. **TanStack Table به جای "Show More":**
+   اگرچه سناریو در ابتدا دکمه "Show More" را پیشنهاد داده بود ، اما الزام «Pagination» نیز وجود داشت. من `TanStack Table` را انتخاب کردم زیرا یک راه‌حل بسیار قوی‌تر برای صفحه‌بندی
+   ارائه می‌دهد. این انتخاب به من اجازه داد تا به سادگی نکات امتیازی مانند مرتب‌سازی، فیلتر و فعال/غیرفعال کردن ستون‌ها را نیز پیاده‌سازی کنم. جدول در حالت اولیه ۱۰ ردیف را نشان
+   می‌دهد (مطابق با `pageSize` اولیه در `data-table.tsx`) که نیاز اولیه سناریو را برآورده می‌کند.
+
+---
+
+## 🚀 Get Started (راه‌اندازی پروژه)
+
+### ۱. پیش‌نیازها
+
+- Node.js (v18.x or later)
+- یک مدیر بسته (npm, yarn, or pnpm)
+
+### ۲. نصب و راه‌اندازی
+
+1.  **کلون کردن مخزن:**
+
+    ```bash
+    git clone https://github.com/masoudkaarimi/crypto-listing-app.git
+    cd crypto-listing-app
+    ```
+
+2.  **نصب وابستگی‌ها:**
+
+    ```bash
+    npm install
+    # یا
+    yarn install
+    # یا
+    pnpm install
+    ```
+
+3.  **پیکربندی متغیرهای محیطی:**
+
+    یک فایل به نام `.env.local` در ریشه پروژه ایجاد کنید. می‌توانید از فایل `example.env.local` کپی کنید یا محتوای زیر را در آن قرار دهید:
+
+    ```.env.local
+    # آدرس API اصلی که توسط سرور استفاده می‌شود
+    COINMARKETCAP_API_URL=https://api.coinmarketcap.com/data-api/v3/cryptocurrency/listing
+
+    # کلید مورد استفاده در localStorage برای ردیابی زمان کش
+    NEXT_PUBLIC_CACHE_KEY=lastFetchTime
+    # مدت زمانی که کش «تازه» محسوب می‌شود (به میلی‌ثانیه). پیش‌فرض: 300000 (۵ دقیقه)
+    NEXT_PUBLIC_CACHE_STALE_TIME_MS=300000
+    # نقطه شروع واکشی API (بر اساس رتبه)
+    NEXT_PUBLIC_CRYPTO_FETCH_START=1
+    # تعداد ارزهایی که در هر درخواست واکشی می‌شوند
+    NEXT_PUBLIC_CRYPTO_FETCH_LIMIT=100
+    ```
+
+4.  **اجرای سرور توسعه:**
+
+    ```bash
+    npm run dev
+    ```
+
+5.  برنامه اکنون در آدرس `http://localhost:3000` قابل مشاهده است.
+
+### ۳. اجرای تست‌ها
+
+برای اجرای تست‌های واحد (Unit Tests) که منطق `utils` و `store` را بررسی می‌کنند :
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm test
+# یا
+yarn test
+# یا
+pnpm test
 ```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
